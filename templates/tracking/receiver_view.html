@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-3">
+        <h2 class="text-success">Live Navigation</h2>
+        <p class="text-muted">Navigating to {{ req.donation.sender.sender_profile.organization_name or req.donation.sender.full_name }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Route Map</h5>
+                    <span class="badge bg-primary px-3 py-2" id="status-badge">{{ session.status }}</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <small class="text-muted d-block">Est. Time</small>
+                        <h4 id="eta-display">-- min</h4>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Distance</small>
+                        <h4 id="dist-display">-- km</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Collection Details</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ req.donation.food_name }}</h6>
+                <p class="text-muted small mb-3">{{ req.donation.quantity }} {{ req.donation.unit }}</p>
+                
+                <h6>Pickup Location</h6>
+                <p class="small">{{ req.donation.pickup_location }}</p>
+                
+                <hr>
+                
+                <form action="{{ url_for('tracking.complete_collection', session_id=session.id) }}" method="POST">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Have you collected the food?')">Mark as Collected</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet JS & Routing Machine -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const destLat = {{ session.dest_lat }};
+        const destLng = {{ session.dest_lng }};
+        const sessionId = {{ session.id }};
+        
+        const map = L.map('map').setView([destLat, destLng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        const destIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        
+        const destMarker = L.marker([destLat, destLng], {icon: destIcon}).addTo(map)
+            .bindPopup("Destination").openPopup();
+            
+        let userMarker = null;
+        let routingControl = null;
+        
+        function updateLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    if (!userMarker) {
+                        userMarker = L.marker([lat, lng]).addTo(map).bindPopup("You");
+                    } else {
+                        userMarker.setLatLng([lat, lng]);
+                    }
+                    
+                    // Setup routing once
+                    if (!routingControl) {
+                        routingControl = L.Routing.control({
+                            waypoints: [
+                                L.latLng(lat, lng),
+                                L.latLng(destLat, destLng)
+                            ],
+                            routeWhileDragging: false,
+                            addWaypoints: false,
+                            show: false,
+                            lineOptions: {
+                                styles: [{color: 'blue', opacity: 0.6, weight: 6}]
+                            }
+                        }).addTo(map);
+                        
+                        routingControl.on('routesfound', function(e) {
+                            const routes = e.routes;
+                            const summary = routes[0].summary;
+                            
+                            document.getElementById('eta-display').innerText = Math.round(summary.totalTime % 3600 / 60) + ' min';
+                            document.getElementById('dist-display').innerText = (summary.totalDistance / 1000).toFixed(1) + ' km';
+                        });
+                    } else {
+                        routingControl.setWaypoints([
+                            L.latLng(lat, lng),
+                            L.latLng(destLat, destLng)
+                        ]);
+                    }
+                    
+                    // Send to server
+                    fetch('{{ url_for("tracking.update_location") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            session_id: sessionId,
+                            lat: lat,
+                            lng: lng
+                        })
+                    });
+                });
+            }
+        }
+        
+        // Update every 10 seconds
+        updateLocation();
+        setInterval(updateLocation, 10000);
+    });
+</script>
+{% endblock %}

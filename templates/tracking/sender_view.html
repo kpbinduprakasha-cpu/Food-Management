@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-3">
+        <h2 class="text-primary">Live Tracking</h2>
+        <p class="text-muted">Tracking {{ req.receiver.receiver_profile.organization_name or req.receiver.full_name }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Receiver Location</h5>
+                    <span class="badge bg-primary px-3 py-2" id="status-badge">{{ session.status }}</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Receiver Details</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if req.receiver.receiver_profile.profile_image %}
+                <img src="{{ url_for('uploaded_file', filename='profiles/' + req.receiver.receiver_profile.profile_image) }}" class="rounded-circle mb-3" width="100" height="100">
+                {% else %}
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                    <span class="fs-1 text-muted">🧑</span>
+                </div>
+                {% endif %}
+                
+                <h5>{{ req.receiver.receiver_profile.organization_name or req.receiver.full_name }}</h5>
+                <p class="text-muted mb-2">{{ req.receiver.mobile }}</p>
+                
+                <hr>
+                
+                <form action="{{ url_for('tracking.complete_collection', session_id=session.id) }}" method="POST">
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Confirm that food was collected?')">Confirm Handover</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const destLat = {{ session.dest_lat }};
+        const destLng = {{ session.dest_lng }};
+        const sessionId = {{ session.id }};
+        
+        const map = L.map('map').setView([destLat, destLng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        // Sender location
+        const senderIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        
+        L.marker([destLat, destLng], {icon: senderIcon}).addTo(map).bindPopup("You").openPopup();
+            
+        let receiverMarker = null;
+        
+        function fetchReceiverLocation() {
+            fetch(`/tracking/api/location/${sessionId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.lat && data.lng) {
+                        if (!receiverMarker) {
+                            receiverMarker = L.marker([data.lat, data.lng]).addTo(map).bindPopup("Receiver");
+                            
+                            // Fit bounds to show both
+                            const group = new L.featureGroup([L.marker([destLat, destLng]), receiverMarker]);
+                            map.fitBounds(group.getBounds().pad(0.5));
+                        } else {
+                            receiverMarker.setLatLng([data.lat, data.lng]);
+                        }
+                    }
+                    if (data.status) {
+                        document.getElementById('status-badge').innerText = data.status;
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+        
+        // Fetch every 10 seconds
+        fetchReceiverLocation();
+        setInterval(fetchReceiverLocation, 10000);
+    });
+</script>
+{% endblock %}

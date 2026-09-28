@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Register as {{ account_type | capitalize }}</h2>
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="full_name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="organization_name" class="form-label">Organization / Business Name (Optional for individuals)</label>
+                    <input type="text" class="form-control" id="organization_name" name="organization_name">
+                </div>
+
+                {% if account_type == 'sender' %}
+                <div class="mb-3">
+                    <label for="sender_type" class="form-label">Sender Type</label>
+                    <select class="form-select" id="sender_type" name="sender_type">
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Hotel">Hotel</option>
+                        <option value="Function Hall">Function Hall</option>
+                        <option value="Individual">Individual</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                {% else %}
+                <div class="mb-3">
+                    <label for="receiver_type" class="form-label">Receiver Type</label>
+                    <select class="form-select" id="receiver_type" name="receiver_type">
+                        <option value="NGO">NGO</option>
+                        <option value="Shelter">Shelter</option>
+                        <option value="Food Bank">Food Bank</option>
+                        <option value="Community Group">Community Group</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="mobile" class="form-label">Mobile Number</label>
+                    <input type="tel" class="form-control" id="mobile" name="mobile" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-{{ 'success' if account_type == 'sender' else 'primary' }} btn-lg">Create Account</button>
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('auth.login') }}">Already have an account? Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

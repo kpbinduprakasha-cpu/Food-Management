@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Pending Receiver Requests</h2>
+        
+        {% if requests %}
+            <div class="list-group">
+            {% for req in requests %}
+                <div class="list-group-item list-group-item-action p-4 mb-3 rounded shadow-sm border">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            {% if req.receiver.receiver_profile.profile_image %}
+                            <img src="{{ url_for('uploaded_file', filename='profiles/' + req.receiver.receiver_profile.profile_image) }}" class="rounded-circle mb-2" width="80" height="80">
+                            {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 80px; height: 80px;">
+                                <span class="fs-2 text-muted">🧑</span>
+                            </div>
+                            {% endif %}
+                            <p class="mb-0 text-warning">★ {{ "%.1f"|format(req.receiver.receiver_profile.rating) }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>{{ req.receiver.receiver_profile.organization_name or req.receiver.full_name }}</h4>
+                            <p class="text-muted mb-1">{{ req.receiver.receiver_profile.receiver_type }}</p>
+                            <p class="mb-1"><strong>Requested Food:</strong> <a href="{{ url_for('food.details', id=req.donation.id) }}">{{ req.donation.food_name }}</a> ({{ req.donation.quantity }} {{ req.donation.unit }})</p>
+                            <p class="mb-0 text-muted small">Requested on: {{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            {% if req.status == 'Requested' %}
+                                <form action="{{ url_for('sender.handle_request', id=req.id, action='accept') }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success me-2">Accept</button>
+                                </form>
+                                <form action="{{ url_for('sender.handle_request', id=req.id, action='reject') }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger">Reject</button>
+                                </form>
+                            {% elif req.status in ['Accepted', 'In Transit'] %}
+                                <a href="{{ url_for('tracking.view_tracking', request_id=req.id) }}" class="btn btn-primary">Track Receiver</a>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ req.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No pending requests at the moment.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

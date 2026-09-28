@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Admin Dashboard</h2>
+        <p class="text-muted">System Overview</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-light h-100 text-center p-3 border">
+            <h3>0</h3>
+            <p class="mb-0">Total Users</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-light h-100 text-center p-3 border">
+            <h3>0</h3>
+            <p class="mb-0">Total Senders</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-light h-100 text-center p-3 border">
+            <h3>0</h3>
+            <p class="mb-0">Total Receivers</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white h-100 text-center p-3">
+            <h3>0</h3>
+            <p class="mb-0">Active Donations</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark h-100 text-center p-3">
+            <h3>0</h3>
+            <p class="mb-0">Pending Requests</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white h-100 text-center p-3">
+            <h3>0</h3>
+            <p class="mb-0">Active Tracking</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white h-100 text-center p-3">
+            <h3>0</h3>
+            <p class="mb-0">Completed Donations</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white h-100 text-center p-3">
+            <h3>0</h3>
+            <p class="mb-0">Expired Donations</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h4 class="mb-3">Management</h4>
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action">Manage Users</a>
+            <a href="#" class="list-group-item list-group-item-action">Manage Donations</a>
+            <a href="#" class="list-group-item list-group-item-action">Manage Requests</a>
+            <a href="#" class="list-group-item list-group-item-action">Verification Requests</a>
+            <a href="#" class="list-group-item list-group-item-action">System Reports</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

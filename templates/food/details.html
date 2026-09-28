@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            {% if food.food_image %}
+            <img src="{{ url_for('uploaded_file', filename='food/' + food.food_image) }}" class="card-img-top" alt="{{ food.food_name }}" style="max-height: 400px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="card-title mb-0">{{ food.food_name }}</h2>
+                    <span class="badge bg-{{ 'success' if food.status == 'Available' else 'secondary' }} fs-6">{{ food.status }}</span>
+                </div>
+                
+                <p class="lead">{{ food.description }}</p>
+                
+                <div class="row mt-4">
+                    <div class="col-sm-6 mb-3">
+                        <h5>Details</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Category:</strong> {{ food.category.name }}</li>
+                            <li><strong>Quantity:</strong> {{ food.quantity }} {{ food.unit }}</li>
+                            <li><strong>Serves Approx:</strong> {{ food.people_served or 'N/A' }}</li>
+                            <li class="text-danger"><strong>Best Before:</strong> {{ food.best_before.strftime('%Y-%m-%d %H:%M') }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <h5>Location</h5>
+                        <p>{{ food.pickup_location }}</p>
+                        {% if food.special_instructions %}
+                        <p><strong>Instructions:</strong><br>{{ food.special_instructions }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Map -->
+                {% if food.latitude and food.longitude %}
+                <div id="map" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #ccc;" class="mb-4"></div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h5 class="card-title">Donor Information</h5>
+                <div class="mb-3">
+                    {% if food.sender.sender_profile.profile_image %}
+                    <img src="{{ url_for('uploaded_file', filename='profiles/' + food.sender.sender_profile.profile_image) }}" class="rounded-circle" width="100" height="100">
+                    {% else %}
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                        <span class="fs-1 text-muted">🏢</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <h4>{{ food.sender.sender_profile.organization_name or food.sender.full_name }}</h4>
+                <p class="text-muted">{{ food.sender.sender_profile.account_type }}</p>
+                <div class="mb-3">
+                    <span class="text-warning fs-5">★</span> {{ "%.1f"|format(food.sender.sender_profile.rating) }}
+                    <small class="text-muted">({{ food.sender.sender_profile.total_donations }} donations)</small>
+                </div>
+                
+                {% if current_user.role == 'receiver' and food.status == 'Available' %}
+                <form action="{{ url_for('food.request_food', id=food.id) }}" method="POST">
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Request Food</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if food.latitude and food.longitude %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const lat = {{ food.latitude }};
+        const lng = {{ food.longitude }};
+        
+        const map = L.map('map').setView([lat, lng], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup("Pickup Location")
+            .openPopup();
+    });
+</script>
+{% endif %}
+{% endblock %}

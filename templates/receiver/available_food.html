@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Available Food Near You</h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for food in donations %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if food.food_image %}
+            <img src="{{ url_for('uploaded_file', filename='food/' + food.food_image) }}" class="card-img-top" alt="{{ food.food_name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center text-muted" style="height: 200px;">
+                No Image
+            </div>
+            {% endif %}
+            
+            <div class="card-body">
+                <h5 class="card-title">{{ food.food_name }}</h5>
+                <p class="card-text text-muted small">By {{ food.sender.sender_profile.organization_name or food.sender.full_name }}</p>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-info">{{ food.category.name }}</span>
+                    <span class="badge bg-warning text-dark">Serves: {{ food.people_served or 'N/A' }}</span>
+                </div>
+                <p class="card-text mb-1"><strong>Quantity:</strong> {{ food.quantity }} {{ food.unit }}</p>
+                <p class="card-text text-danger small"><strong>Expires:</strong> {{ food.best_before.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+            <div class="card-footer bg-white border-top-0 d-grid">
+                <a href="{{ url_for('food.details', id=food.id) }}" class="btn btn-outline-primary">View Details & Request</a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info text-center p-5">
+            <h4 class="alert-heading">No Food Available</h4>
+            <p>There are no active food donations at the moment. Please check back later.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

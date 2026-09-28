@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">My Requests</h2>
+        
+        {% if requests %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Donor</th>
+                            <th>Requested On</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td>
+                                <strong>{{ req.donation.food_name }}</strong><br>
+                                <small class="text-muted">{{ req.donation.quantity }} {{ req.donation.unit }}</small>
+                            </td>
+                            <td>{{ req.donation.sender.sender_profile.organization_name or req.donation.sender.full_name }}</td>
+                            <td>{{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if req.status == 'Requested' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif req.status == 'Accepted' %}
+                                    <span class="badge bg-success">Accepted</span>
+                                {% elif req.status == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-info">{{ req.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('food.details', id=req.donation.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                {% if req.status == 'Accepted' %}
+                                    <a href="{{ url_for('tracking.start_tracking', request_id=req.id) }}" class="btn btn-sm btn-success">Start Journey</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                You haven't made any requests yet. <a href="{{ url_for('food.available') }}">Find available food</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
