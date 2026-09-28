@@ -56,7 +56,12 @@
                     </div>
                     {% endif %}
                 </div>
-                <h4>{{ food.sender.sender_profile.organization_name or food.sender.full_name }}</h4>
+                <h4>
+                    {{ food.sender.sender_profile.organization_name or food.sender.full_name }}
+                    {% if food.sender.is_verified %}
+                        <span class="text-success fs-5" title="Verified Sender">✔</span>
+                    {% endif %}
+                </h4>
                 <p class="text-muted">{{ food.sender.sender_profile.account_type }}</p>
                 <div class="mb-3">
                     <span class="text-warning fs-5">★</span> {{ "%.1f"|format(food.sender.sender_profile.rating) }}

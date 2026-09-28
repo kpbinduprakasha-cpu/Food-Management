@@ -63,7 +63,10 @@
     <div class="col-md-12">
         <h4 class="mb-3">Management</h4>
         <div class="list-group">
-            <a href="#" class="list-group-item list-group-item-action">Manage Users</a>
+            <a href="{{ url_for('admin.manage_users') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                Manage Users & Verification
+                <span class="badge bg-primary rounded-pill">Manage</span>
+            </a>
             <a href="#" class="list-group-item list-group-item-action">Manage Donations</a>
             <a href="#" class="list-group-item list-group-item-action">Manage Requests</a>
             <a href="#" class="list-group-item list-group-item-action">Verification Requests</a>
