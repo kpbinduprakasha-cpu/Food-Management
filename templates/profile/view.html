@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body text-center p-5">
+                {% if user.role == 'sender' and user.sender_profile.profile_image %}
+                    <img src="{{ url_for('uploaded_file', filename='profiles/' + user.sender_profile.profile_image) }}" class="rounded-circle mb-4" width="150" height="150" style="object-fit: cover;">
+                {% elif user.role == 'receiver' and user.receiver_profile.profile_image %}
+                    <img src="{{ url_for('uploaded_file', filename='profiles/' + user.receiver_profile.profile_image) }}" class="rounded-circle mb-4" width="150" height="150" style="object-fit: cover;">
+                {% else %}
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 150px; height: 150px;">
+                        <span class="fs-1 text-muted">🧑</span>
+                    </div>
+                {% endif %}
+                
+                <h2 class="mb-1">
+                    {{ user.full_name }}
+                    {% if user.is_verified %}
+                        <span class="text-success fs-4" title="Verified Account">✔</span>
+                    {% endif %}
+                </h2>
+                
+                {% if user.role == 'sender' %}
+                    <p class="text-muted fs-5 mb-3">{{ user.sender_profile.organization_name }} ({{ user.sender_profile.account_type }})</p>
+                    <div class="mb-4">
+                        <span class="text-warning fs-4">★</span> <span class="fs-4">{{ "%.1f"|format(user.sender_profile.rating) }}</span>
+                    </div>
+                    
+                    <div class="row text-start mt-4">
+                        <div class="col-md-6 mb-3">
+                            <strong>Role:</strong> <span class="badge bg-success">Food Sender</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Email:</strong> {{ user.email }}
+                        </div>
+                    </div>
+                {% elif user.role == 'receiver' %}
+                    <p class="text-muted fs-5 mb-3">{{ user.receiver_profile.organization_name }} ({{ user.receiver_profile.receiver_type }})</p>
+                    <div class="mb-4">
+                        <span class="text-warning fs-4">★</span> <span class="fs-4">{{ "%.1f"|format(user.receiver_profile.rating) }}</span>
+                    </div>
+                    
+                    <div class="row text-start mt-4">
+                        <div class="col-md-6 mb-3">
+                            <strong>Role:</strong> <span class="badge bg-primary">Food Receiver</span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Email:</strong> {{ user.email }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="mt-4 pt-3 border-top">
+                    <button class="btn btn-outline-secondary" onclick="history.back()">Go Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

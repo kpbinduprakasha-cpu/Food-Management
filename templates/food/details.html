@@ -57,7 +57,9 @@
                     {% endif %}
                 </div>
                 <h4>
-                    {{ food.sender.sender_profile.organization_name or food.sender.full_name }}
+                    <a href="{{ url_for('profile.view', user_id=food.sender_id) }}" class="text-dark text-decoration-none">
+                        {{ food.sender.sender_profile.organization_name or food.sender.full_name }}
+                    </a>
                     {% if food.sender.is_verified %}
                         <span class="text-success fs-5" title="Verified Sender">✔</span>
                     {% endif %}

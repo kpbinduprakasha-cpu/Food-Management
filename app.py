@@ -27,6 +27,7 @@ def create_app(config_class=Config):
     from routes.admin import admin_bp
     from routes.food import food_bp
     from routes.tracking import tracking_bp
+    from routes.profile import profile_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(sender_bp)
@@ -34,6 +35,7 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
     app.register_blueprint(food_bp)
     app.register_blueprint(tracking_bp)
+    app.register_blueprint(profile_bp)
     
     @app.route('/')
     def index():

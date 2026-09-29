@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">Edit Profile Settings</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mobile Number</label>
+                            <input type="text" name="mobile" class="form-control" value="{{ current_user.mobile }}" required>
+                        </div>
+                    </div>
+                    
+                    {% if current_user.role == 'sender' %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Organization Name</label>
+                            <input type="text" name="organization_name" class="form-control" value="{{ current_user.sender_profile.organization_name or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Account Type</label>
+                            <select name="account_type" class="form-select">
+                                <option value="Individual" {% if current_user.sender_profile.account_type == 'Individual' %}selected{% endif %}>Individual</option>
+                                <option value="Hotel" {% if current_user.sender_profile.account_type == 'Hotel' %}selected{% endif %}>Hotel</option>
+                                <option value="Restaurant" {% if current_user.sender_profile.account_type == 'Restaurant' %}selected{% endif %}>Restaurant</option>
+                                <option value="Event Organizer" {% if current_user.sender_profile.account_type == 'Event Organizer' %}selected{% endif %}>Event Organizer</option>
+                            </select>
+                        </div>
+                    </div>
+                    {% elif current_user.role == 'receiver' %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Organization Name</label>
+                            <input type="text" name="organization_name" class="form-control" value="{{ current_user.receiver_profile.organization_name or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Receiver Type</label>
+                            <select name="receiver_type" class="form-select">
+                                <option value="Individual" {% if current_user.receiver_profile.receiver_type == 'Individual' %}selected{% endif %}>Individual</option>
+                                <option value="NGO" {% if current_user.receiver_profile.receiver_type == 'NGO' %}selected{% endif %}>NGO</option>
+                                <option value="Community Center" {% if current_user.receiver_profile.receiver_type == 'Community Center' %}selected{% endif %}>Community Center</option>
+                                <option value="Orphanage" {% if current_user.receiver_profile.receiver_type == 'Orphanage' %}selected{% endif %}>Orphanage</option>
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Profile Image (Optional)</label>
+                        <input type="file" name="profile_image" class="form-control" accept="image/*">
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-secondary me-md-2" onclick="history.back()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

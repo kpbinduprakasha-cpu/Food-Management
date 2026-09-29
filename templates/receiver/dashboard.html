@@ -56,8 +56,8 @@
                 Active Collection
                 <span class="badge bg-success rounded-pill">{{ active_collections }}</span>
             </a>
-            <a href="#" class="list-group-item list-group-item-action">Collection History</a>
-            <a href="#" class="list-group-item list-group-item-action">Profile Settings</a>
+            <a href="{{ url_for('profile.history') }}" class="list-group-item list-group-item-action">Collection History</a>
+            <a href="{{ url_for('profile.edit') }}" class="list-group-item list-group-item-action">Profile Settings</a>
         </div>
     </div>
 </div>

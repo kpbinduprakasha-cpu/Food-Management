@@ -57,8 +57,8 @@
                 Active Tracking
                 <span class="badge bg-success rounded-pill">View</span>
             </a>
-            <a href="#" class="list-group-item list-group-item-action">Donation History</a>
-            <a href="#" class="list-group-item list-group-item-action">Profile Settings</a>
+            <a href="{{ url_for('profile.history') }}" class="list-group-item list-group-item-action">Donation History</a>
+            <a href="{{ url_for('profile.edit') }}" class="list-group-item list-group-item-action">Profile Settings</a>
         </div>
     </div>
 </div>

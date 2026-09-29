@@ -21,7 +21,11 @@
             
             <div class="card-body">
                 <h5 class="card-title">{{ food.food_name }}</h5>
-                <p class="card-text text-muted small">By {{ food.sender.sender_profile.organization_name or food.sender.full_name }}</p>
+                <p class="card-text text-muted small">By 
+                    <a href="{{ url_for('profile.view', user_id=food.sender_id) }}" class="text-decoration-none text-muted fw-bold">
+                        {{ food.sender.sender_profile.organization_name or food.sender.full_name }}
+                    </a>
+                </p>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="badge bg-info">{{ food.category.name }}</span>
                     <span class="badge bg-warning text-dark">Serves: {{ food.people_served or 'N/A' }}</span>
