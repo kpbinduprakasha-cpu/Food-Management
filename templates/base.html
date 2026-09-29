@@ -72,8 +72,20 @@
             <h1 class="display-4 text-success mb-4">Rescue Food • Reduce Waste • Feed People</h1>
             <p class="lead mb-5">Connect surplus usable food with verified people or organizations.</p>
             <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                <a href="{{ url_for('auth.register', type='sender') }}" class="btn btn-success btn-lg px-4 gap-3">Donate Food</a>
-                <a href="{{ url_for('auth.register', type='receiver') }}" class="btn btn-outline-secondary btn-lg px-4">Receive Food</a>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'sender' %}
+                        <a href="{{ url_for('food.donate') }}" class="btn btn-success btn-lg px-4 gap-3">Donate Food</a>
+                        <a href="{{ url_for('sender.requests') }}" class="btn btn-outline-secondary btn-lg px-4">Manage Requests</a>
+                    {% elif current_user.role == 'receiver' %}
+                        <a href="{{ url_for('food.available') }}" class="btn btn-success btn-lg px-4 gap-3">Find Food</a>
+                        <a href="{{ url_for('receiver.my_requests') }}" class="btn btn-outline-secondary btn-lg px-4">My Collections</a>
+                    {% elif current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-success btn-lg px-4 gap-3">Admin Dashboard</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ url_for('auth.register', type='sender') }}" class="btn btn-success btn-lg px-4 gap-3">Donate Food</a>
+                    <a href="{{ url_for('auth.register', type='receiver') }}" class="btn btn-outline-secondary btn-lg px-4">Receive Food</a>
+                {% endif %}
             </div>
         </div>
         {% endblock %}
