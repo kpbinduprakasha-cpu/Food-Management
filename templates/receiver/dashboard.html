@@ -29,7 +29,18 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ food.food_name }}</h5>
                             <p class="card-text text-muted mb-1">{{ food.quantity }} {{ food.unit }}</p>
-                            <p class="card-text small">By: {{ food.sender.sender_profile.organization_name or food.sender.full_name }}</p>
+                            <div class="d-flex align-items-center mb-3 mt-2">
+                                <a href="{{ url_for('profile.view', user_id=food.sender_id) }}" class="text-decoration-none d-flex align-items-center text-dark">
+                                    {% if food.sender.sender_profile.profile_image %}
+                                        <img src="{{ url_for('uploaded_file', filename='profiles/' + food.sender.sender_profile.profile_image) }}" class="rounded-circle me-2" width="25" height="25" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center me-2 border" style="width: 25px; height: 25px;">
+                                            <span class="text-muted" style="font-size: 0.7rem;">🧑</span>
+                                        </div>
+                                    {% endif %}
+                                    <span class="small">{{ food.sender.sender_profile.organization_name or food.sender.full_name }}</span>
+                                </a>
+                            </div>
                             <a href="{{ url_for('food.details', id=food.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
                         </div>
                     </div>
