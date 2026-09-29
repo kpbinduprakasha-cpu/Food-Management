@@ -9,7 +9,40 @@ sender_bp = Blueprint('sender', __name__, url_prefix='/sender')
 def dashboard():
     if current_user.role != 'sender':
         return "Unauthorized", 403
-    return render_template('sender/dashboard.html')
+    from models.food import FoodDonation
+    from models.request import FoodRequest
+    from sqlalchemy import func
+    
+    # Active Donations (Available or In Transit)
+    active_donations = FoodDonation.query.filter(
+        FoodDonation.sender_id == current_user.id,
+        FoodDonation.status.in_(['Available', 'Accepted', 'In Transit'])
+    ).count()
+    
+    # Pending Requests (Requests on this sender's food with 'Requested' status)
+    pending_requests = db.session.query(FoodRequest).join(FoodDonation).filter(
+        FoodDonation.sender_id == current_user.id,
+        FoodRequest.status == 'Requested'
+    ).count()
+    
+    # Completed Donations
+    completed_donations = FoodDonation.query.filter_by(
+        sender_id=current_user.id, 
+        status='Completed'
+    ).count()
+    
+    # People Served (sum of people_served for completed donations)
+    people_served = db.session.query(func.sum(FoodDonation.people_served)).filter(
+        FoodDonation.sender_id == current_user.id,
+        FoodDonation.status == 'Completed'
+    ).scalar() or 0
+    
+    return render_template('sender/dashboard.html',
+        active_donations=active_donations,
+        pending_requests=pending_requests,
+        completed_donations=completed_donations,
+        people_served=people_served
+    )
 
 @sender_bp.route('/requests')
 @login_required
